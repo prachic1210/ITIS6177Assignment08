@@ -167,7 +167,8 @@ if (conn) return conn.end();
 *      404:
 *        description: Agent not found
 */
-],async function(req,res){
+app.get('/agents/:id',[param('id').trim().not().isEmpty().isAlphanumeric().withMessage('ID should be only alphabets and numbers').isLength({min:1, max:6}).withMessage('Length of id should be between minimum 1 and maximum 6').escape()],
+async function(req,res){
 let conn;
 id = req.params.id;
 res.header('Content-type','application/json');
@@ -254,6 +255,8 @@ if (conn) return conn.end();
 *      404:
 *        description: Company not found with the specified id
 */
+app.get('/companies/:id',[param('id').trim().not().isEmpty().isAlphanumeric().withMessage('ID should have only aplhabets and numbers').isLength({min:1, max:6}).withMessage('Length of id should be between minimum 1 and maximum 6').escape()],
+async function(req,res){
 let conn;
 id = req.params.id;
 res.header('Content-type','application/json');
@@ -338,35 +341,38 @@ if (conn) return conn.end();
 *      404:
 *        description: Customer not found with that id
 */
+app.get('/customers/:id',[ param('id').trim().not().isEmpty().isAlphanumeric().withMessage('ID should be numbers and alphabets only').isLength({min:1, max:6}).withMessage('Length of id should be between min 1 and max 6').escape()
 ],async function(req,res){
-let conn;
-id = req.params.id;
-res.header('Content-type','application/json');
-const errors = validationResult(req);
-if(!errors.isEmpty()){
-return  res.status(400).json({
-      'error': errors.array()
-})
-}
-try{
-conn =await pool.getConnection();
-const rows =await conn.query("Select * from customer where CUST_CODE = (?)",[id]);
-      'error': 'Could not find the given customer code'
-    });
-}
-else{
-  res.json(rows);
-}
-}
-catch(err){
-console.log(err);
-res.status(500).json({
-   'error': err
-});
-}
-finally{
-if (conn) return conn.end();
-}
+    let conn;
+    id = req.params.id;
+     res.header('Content-type','application/json');
+     const errors = validationResult(req);
+     if(!errors.isEmpty()){
+        return  res.status(400).json({
+                'error': errors.array()
+        })
+     }
+     try{
+         conn =await pool.getConnection();
+         const rows =await conn.query("Select * from customer where CUST_CODE = (?)",[id]);
+        if(rows.length == 0){
+                res.status(404).json({
+                'error': 'Could not find the given customer code'
+              });
+         }
+        else{
+            res.json(rows);
+        }
+     }
+     catch(err){
+         console.log(err);
+         res.status(500).json({
+             'error': err
+         });
+     }
+     finally{
+         if (conn) return conn.end();
+     }
 
 });
 
@@ -398,34 +404,37 @@ if (conn) return conn.end();
 *        description: Internal Error
 */
 app.put('/foods/:id',[body('ITEM_NAME').trim().not().isEmpty().withMessage('ITEM NAME cannot be empty').escape(),
-            body('ITEM_UNIT').trim().not().isEmpty().withMessage('ITEM UNIT cannot be empty').escape(),
-            body('COMPANY_ID').trim().not().isEmpty().withMessage('Company ID cannot be empty').escape(),
+body('ITEM_UNIT').trim().not().isEmpty().withMessage('ITEM UNIT cannot be empty').escape(),
+body('COMPANY_ID').trim().not().isEmpty().withMessage('Company ID cannot be empty').escape(),
+param('id').trim().not().isEmpty().withMessage('ID cannot be empty').isAlphanumeric().withMessage('ID should be aplhabets and numbers only').isLength({min:1, max:6}).withMessage('Length of id should be between minimum 1 and maximum 6').escape()
 
 ], async function(req,res){
 res.header('Content-type','application/json');
 const errors = validationResult(req);
 if(!errors.isEmpty()){
 return  res.status(400).json({
-      'error': errors.array()
+'error': errors.array()
 })
 }
-      let req_body = req.body;
-      console.log(req_body);
-      const rows = await conn.query("Update foods SET ITEM_NAME=?, ITEM_UNIT= ?, COMPANY_ID =?  where ITEM_ID =?",[req_body.ITEM_NAME,req_body.ITEM_UNIT,req_body.COMPANY_ID,req.params.id]);
-      console.log(rows.affectedRows);
-    if(rows.affectedRows == 0){
-              res.status(400).json({
-              'error': 'Invalid food code'
-              });
-      }
-      else{
-              res.status(200).end();
-      }
+try{
+conn = await pool.getConnection();
+let req_body = req.body;
+console.log(req_body);
+const rows = await conn.query("Update foods SET ITEM_NAME=?, ITEM_UNIT= ?, COMPANY_ID =?  where ITEM_ID =?",[req_body.ITEM_NAME,req_body.ITEM_UNIT,req_body.COMPANY_ID,req.params.id]);
+console.log(rows.affectedRows);
+if(rows.affectedRows == 0){
+  res.status(400).json({
+  'error': 'Invalid food code'
+  });
+}
+else{
+  res.status(200).end();
+}
 }
 catch(err){
 console.log(err);
 res.status(500).json({
-      'error': err
+'error': err
 })
 }
 finally{
@@ -456,35 +465,39 @@ if (conn) return conn.end();
 *        description: Internal Error
 */
 app.post('/foods',[body('ITEM_NAME').trim().not().isEmpty().withMessage('Item name cannot be empty').escape(),
-            body('ITEM_UNIT').trim().not().isEmpty().withMessage('Item unit cannot be empty').escape(),
-            body('COMPANY_ID').trim().not().isEmpty().withMessage('Company Id cannot be empty').escape(),
+                      body('ITEM_UNIT').trim().not().isEmpty().withMessage('Item unit cannot be empty').escape(),
+                      body('COMPANY_ID').trim().not().isEmpty().withMessage('Company Id cannot be empty').escape(),
+                      body('ITEM_ID').trim().not().isEmpty().withMessage('ID cannot be empty').isAlphanumeric().withMessage('ID should be aplhabets and integers only').isLength({min:1, max:6}).withMessage('Length of id should be between minimum 1 and maximum 6').escape()
 
 ], async function(req,res){
-res.header('Content-type','application/json');
-const errors = validationResult(req);
+  res.header('Content-type','application/json');
+ const errors = validationResult(req);
 console.log(errors.isEmpty());
-if(!errors.isEmpty()){
-return  res.status(400).json({
-}
-try{
-      conn = await pool.getConnection();
-      let req_body = req.body;
-      console.log(req_body);
-      const rows = await conn.query("INSERT INTO foods VALUES (?,?,?,?)",[req_body.ITEM_ID,req_body.ITEM_NAME,req_body.ITEM_UNIT,req_body.COMPANY_ID]);
-      res.status(200).end();
+   if(!errors.isEmpty()){
+        return  res.status(400).json({
+                'error': errors.array()
+        })
+   }
+        try{
+                conn = await pool.getConnection();
+                let req_body = req.body;
+                console.log(req_body);
+                const rows = await conn.query("INSERT INTO foods VALUES (?,?,?,?)",[req_body.ITEM_ID,req_body.ITEM_NAME,req_body.ITEM_UNIT,req_body.COMPANY_ID]);
+                res.status(200).end();
 
 
-}
-catch(err){
-console.log(err);
-res.status(500).json({
-      'error': err
-})
-}
-finally{
-if (conn) return conn.end();
-}
+        }
+        catch(err){
+        console.log(err);
+        res.status(500).json({
+                'error': err
+        })
+        }
+        finally{
+         if (conn) return conn.end();
+        }
 });
+
 
 /**
 * @swagger
