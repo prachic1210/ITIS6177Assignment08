@@ -1,8 +1,13 @@
 {
   "name": "itis6177assignment08",
   "version": "1.0.0",
+<<<<<<< HEAD
   "description": "",
   "main": "(server.js)",
+=======
+  "description": "Assignment 08",
+  "main": "server.js",
+>>>>>>> a0bde66bb8ce4d1754718f64df2b8043584f4d14
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -11,7 +16,11 @@
     "type": "git",
     "url": "git+https://github.com/prachic1210/ITIS6177Assignment08.git"
   },
+<<<<<<< HEAD
   "author": "Prachi",
+=======
+  "author": "",
+>>>>>>> a0bde66bb8ce4d1754718f64df2b8043584f4d14
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/prachic1210/ITIS6177Assignment08/issues"

@@ -8,6 +8,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const {body,param,validationResult} = require('express-validator');
 const axios = require('axios');
+const {check,body,param,validationResult} = require('express-validator');
 
 
 const mariadb = require('mariadb');
@@ -613,6 +614,7 @@ res.status(500).json({
 finally{
 if (conn) return conn.end();
 }
+<<<<<<< HEAD
 });
 
 
@@ -655,3 +657,10 @@ app.get('/say', async function(req,res){
 app.listen(port,()=>{
 console.log(`Server is listening on port ${port}`);
 })
+=======
+})
+
+app.listen(port,()=>{
+console.log(`Server is listening on port ${port}`);
+})
+>>>>>>> a0bde66bb8ce4d1754718f64df2b8043584f4d14
